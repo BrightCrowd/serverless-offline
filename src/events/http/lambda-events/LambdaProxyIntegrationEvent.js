@@ -1,8 +1,8 @@
 import { Buffer } from "node:buffer"
 import crypto from "node:crypto"
 import { env } from "node:process"
-import { log } from "@serverless/utils/log.js"
 import { decodeJwt } from "jose"
+import { log } from "../../../utils/log.js"
 import {
   detectEncoding,
   formatToClfTime,
@@ -134,8 +134,8 @@ export default class LambdaProxyIntegrationEvent {
     if (token) {
       try {
         claims = decodeJwt(token)
-        if (claims.scope) {
-          scopes = claims.scope.split(" ")
+        if (claims.scp || claims.scope) {
+          scopes = claims.scp || claims.scope.split(" ")
           // In AWS HTTP Api the scope property is removed from the decoded JWT
           // I'm leaving this property because I'm not sure how all of the authorizers
           // for AWS REST Api handle JWT.

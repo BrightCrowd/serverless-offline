@@ -15,11 +15,13 @@ export const supportedRuntimesArchitecture = {
   "nodejs16.x": [ARM64, X86_64],
   "nodejs18.x": [ARM64, X86_64],
   "nodejs20.x": [ARM64, X86_64],
+  "nodejs22.x": [ARM64, X86_64],
   "python3.7": [X86_64],
   "python3.8": [ARM64, X86_64],
   "python3.9": [ARM64, X86_64],
   "python3.10": [ARM64, X86_64],
   "python3.11": [ARM64, X86_64],
+  "python3.12": [ARM64, X86_64],
   "ruby2.7": [ARM64, X86_64],
   "ruby3.2": [ARM64, X86_64],
   java8: [X86_64],
@@ -31,6 +33,7 @@ export const supportedRuntimesArchitecture = {
   provided: [X86_64],
   dotnet6: [ARM64, X86_64],
   "provided.al2": [ARM64, X86_64],
+  "provided.al2023": [ARM64, X86_64],
 }
 
 // GO
@@ -45,10 +48,15 @@ export const supportedNodejs = new Set([
   "nodejs16.x",
   "nodejs18.x",
   "nodejs20.x",
+  "nodejs22.x",
 ])
 
 // PROVIDED
-export const supportedProvided = new Set(["provided", "provided.al2"])
+export const supportedProvided = new Set([
+  "provided",
+  "provided.al2",
+  "provided.al2023",
+])
 
 // PYTHON
 export const supportedPython = new Set([
@@ -57,6 +65,7 @@ export const supportedPython = new Set([
   "python3.9",
   "python3.10",
   "python3.11",
+  "python3.12",
 ])
 
 // RUBY
