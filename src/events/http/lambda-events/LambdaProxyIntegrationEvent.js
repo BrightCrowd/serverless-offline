@@ -21,34 +21,35 @@ const { assign } = Object
 // https://docs.aws.amazon.com/apigateway/latest/developerguide/set-up-lambda-proxy-integrations.html
 // http://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-create-api-as-simple-proxy-for-lambda.html
 export default class LambdaProxyIntegrationEvent {
-  #additionalRequestContext = null
+  // Using public fields instead of private to avoid private brand issues
+  additionalRequestContext = null
 
-  #path = null
+  path = null
 
-  #routeKey = null
+  routeKey = null
 
-  #request = null
+  request = null
 
-  #stage = null
+  stage = null
 
   constructor(request, stage, path, routeKey, additionalRequestContext) {
-    this.#additionalRequestContext = additionalRequestContext || {}
-    this.#path = path
-    this.#routeKey = routeKey
-    this.#request = request
-    this.#stage = stage
+    this.additionalRequestContext = additionalRequestContext || {}
+    this.path = path
+    this.routeKey = routeKey
+    this.request = request
+    this.stage = stage
   }
 
   create() {
     const authPrincipalId =
-      this.#request.auth &&
-      this.#request.auth.credentials &&
-      this.#request.auth.credentials.principalId
+      this.request.auth &&
+      this.request.auth.credentials &&
+      this.request.auth.credentials.principalId
 
     const authContext =
-      (this.#request.auth &&
-        this.#request.auth.credentials &&
-        this.#request.auth.credentials.context) ||
+      (this.request.auth &&
+        this.request.auth.credentials &&
+        this.request.auth.credentials.context) ||
       {}
 
     let authAuthorizer
@@ -63,10 +64,10 @@ export default class LambdaProxyIntegrationEvent {
       }
     }
 
-    let body = this.#request.payload
+    let body = this.request.payload
     let isBase64Encoded = false
 
-    const { rawHeaders, url } = this.#request.raw.req
+    const { rawHeaders, url } = this.request.raw.req
 
     // NOTE FIXME request.raw.req.rawHeaders can only be null for testing (hapi shot inject())
     const headers = parseHeaders(rawHeaders || []) || {}
@@ -83,17 +84,17 @@ export default class LambdaProxyIntegrationEvent {
 
     if (body) {
       if (
-        this.#request.raw.req.payload &&
-        detectEncoding(this.#request) === "binary"
+        this.request.raw.req.payload &&
+        detectEncoding(this.request) === "binary"
       ) {
-        body = Buffer.from(this.#request.raw.req.payload).toString("base64")
+        body = Buffer.from(this.request.raw.req.payload).toString("base64")
         headers["Content-Length"] = String(Buffer.byteLength(body, "base64"))
         isBase64Encoded = true
       }
 
       if (typeof body !== "string") {
         // this.#request.payload is NOT the same as the rawPayload
-        body = this.#request.rawPayload
+        body = this.request.rawPayload
       }
 
       if (
@@ -120,7 +121,7 @@ export default class LambdaProxyIntegrationEvent {
     }
 
     // clone own props
-    const pathParams = { ...this.#request.params }
+    const pathParams = { ...this.request.params }
 
     let token = headers.Authorization || headers.authorization
 
@@ -152,15 +153,14 @@ export default class LambdaProxyIntegrationEvent {
       info: { received, remoteAddress },
       method,
       route,
-    } = this.#request
+    } = this.request
 
     const httpMethod = method.toUpperCase()
     const requestTime = formatToClfTime(received)
     const requestTimeEpoch = received
     // NOTE replace * added by generateHapiPath util so api gateway event is accurate
     const resource =
-      this.#routeKey ||
-      this.#path.replace(`/${this.#stage}`, "").replace("*", "+")
+      this.routeKey || this.path.replace(`/${this.stage}`, "").replace("*", "+")
 
     return {
       body,
@@ -173,7 +173,7 @@ export default class LambdaProxyIntegrationEvent {
       ),
       multiValueQueryStringParameters:
         parseMultiValueQueryStringParameters(url),
-      path: this.#path,
+      path: this.path,
       pathParameters: nullIfEmpty(pathParams),
       queryStringParameters: parseQueryStringParameters(url),
       requestContext: {
@@ -220,15 +220,15 @@ export default class LambdaProxyIntegrationEvent {
           userAgent: _headers["user-agent"] || "",
           userArn: "offlineContext_userArn",
         },
-        operationName: this.#additionalRequestContext.operationName,
-        path: this.#path,
+        operationName: this.additionalRequestContext.operationName,
+        path: this.path,
         protocol: "HTTP/1.1",
         requestId: crypto.randomUUID(),
         requestTime,
         requestTimeEpoch,
         resourceId: "offlineContext_resourceId",
         resourcePath: route.path,
-        stage: this.#stage,
+        stage: this.stage,
       },
       resource,
       stageVariables: null,
